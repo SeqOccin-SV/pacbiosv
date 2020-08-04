@@ -1,0 +1,18 @@
+__default__:
+  mem: 8
+  name: "{rule}.{wildcards}"
+  time: "24:00:00"
+  output: "logs/cluster/{rule}.{wildcards}.out"
+  error: "logs/cluster/{rule}.{wildcards}.err"
+
+pbmm2_fastq:
+  mem: 50
+  threads: 10
+
+pbsv_discover:
+  mem: 20
+  threads: 4
+
+pbsv_call:
+  mem: 50
+  threads: 10

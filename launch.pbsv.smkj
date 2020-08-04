@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ $# -ne 0 ]
+then
+	echo 'USAGE: launch.pbsv.smkj'
+	exit 1
+fi
+
+#~ conda env create -p ./pbsv -f environment.yaml
+#~ conda activate ./pbsv/
+
+snakemake -j 4 --cluster "sbatch -c {threads} -p workq --mem={resources.mem_gb}G" --cluster-config cluster.yaml \
+	--configfile config.yaml \
+	--use-conda --skip-script-cleanup
