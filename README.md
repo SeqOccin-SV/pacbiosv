@@ -1,22 +1,26 @@
 # PacBio SV detection pipeline
 
-### Running PacBio SV detection pipeline on your dataset
+## Running PacBio SV detection pipeline on your dataset
+
+To run this snakemake pipeline, you need to have access to an installation of python3 with snakemake 5 module installed.
 
 #### Setting python env to have access to PacBio helper script
 
+```bash
 # check for module load on genotoul
 conda env create -p ./pbsv -f envs/pbsv_env.yaml
 conda activate ./pbsv/
+```
 
-#### Running the pipeline
+## Running the pipeline
 
-##### Snakemake
+### Snakemake
 
 ```bash
 sbatch -j 4 ./launch.pbsv.smkj
 ```
 
-##### Bash command summary
+##### Summary of the bash commands executed by the pipeline
 
 ###### Using pbmm2 to run minimap2 with preset for CCS
 ```bash
