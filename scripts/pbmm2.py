@@ -36,5 +36,10 @@ command += ' '.join([' >', snakemake.log.stdout, '2>', snakemake.log.stderr])
 
 print(command)
 
+# Need to change tmp dir to cwd or else crash due to full /tmp/
+# pbmm2 is supposed to have TMPDIR set on ./ by default but does not seem to be true
+os.environ['TMPDIR'] = "./" # UNIX
+os.environ['TMP'] = "./" # WINDOWS
+
 os.system(command)
 
