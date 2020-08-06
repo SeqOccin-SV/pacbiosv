@@ -24,7 +24,7 @@ def get_type(fofn):
 ### Script
 ###################################################################
 
-command = ' '.join(['pbmm2 align', snakemake.config['ref'], snakemake.input.file, snakemake.output.bam, '--sort'])
+command = ' '.join(['pbmm2 align', snakemake.config['ref'], snakemake.input.file, snakemake.output.bam, '--sort -j',str(snakemake.threads)])
 
 if (get_type(snakemake.input.file)==2): # only if CCS
 	command += ' --preset CCS'

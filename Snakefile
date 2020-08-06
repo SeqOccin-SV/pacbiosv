@@ -159,7 +159,6 @@ rule pbsv_call:
 	resources:
 		mem_gb=50
 	shell:
-		# ~ "pbsv call "+ref+" {input} {output}"
-		# ~ "pbsv call {config.ref} {input} {output}"
-		"pbsv call "+config['ref']+" {input} {output}"
+		"pbsv call -j {threads} "+config['ref']+" {input} {output}"
+                # specific parameter for CCS, easier to consider a SV" --ccs"
 		" 2> {log}"
