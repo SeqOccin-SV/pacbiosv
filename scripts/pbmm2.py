@@ -24,7 +24,8 @@ def get_type(fofn):
 ### Script
 ###################################################################
 
-command = ' '.join(['pbmm2 align', snakemake.config['ref'], snakemake.input.file, snakemake.output.bam, '--sort -j',str(snakemake.threads)])
+# command = ' '.join(['pbmm2 align', snakemake.config['ref'], snakemake.input.file, snakemake.output.bam, '--sort -j',str(snakemake.threads)])
+command = ' '.join(['pbmm2 align', snakemake.config['ref'], snakemake.input.file, snakemake.output.bam+'.tmp', '-j',str(snakemake.threads)])
 
 if (get_type(snakemake.input.file)==2): # only if CCS
 	command += ' --preset CCS'
@@ -42,4 +43,13 @@ os.environ['TMPDIR'] = "./" # UNIX
 os.environ['TMP'] = "./" # WINDOWS
 
 os.system(command)
+
+command_sort = 'samtools sort -@ '+str(snakemake.threads)])+' -m 2G -o '+snakemake.output.bam+' '+snakemake.output.bam+'.tmp >> '+snakemake.log.stdout+' 2>> '+snakemake.log.stderr
+print(command_sort)
+
+os.system(command_sort)
+
+print('Removing temporary bam...')
+os.system('rm -f '+snakemake.output.bam+'.tmp')
+
 
