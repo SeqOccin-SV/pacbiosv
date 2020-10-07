@@ -44,12 +44,4 @@ os.environ['TMP'] = "./" # WINDOWS
 
 os.system(command)
 
-command_sort = 'samtools sort -@ '+str(snakemake.threads)+' -m 2G -o '+snakemake.output.bam+'.sort '+snakemake.output.bam+' >> '+snakemake.log.stdout+' 2>> '+snakemake.log.stderr
-print(command_sort)
-
-os.system(command_sort)
-
-print('Removing temporary bam...')
-os.system('mv -f '+snakemake.output.bam+'.sort '+snakemake.output.bam)
-
 

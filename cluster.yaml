@@ -1,13 +1,19 @@
 __default__:
   mem: 8
+  threads: 4
+  partition: 'workq'
   name: "{rule}.{wildcards}"
   time: "24:00:00"
   output: "logs/cluster/{rule}.{wildcards}.out"
   error: "logs/cluster/{rule}.{wildcards}.err"
 
-pbmm2_fastq:
-  mem: 50
-  threads: 10
+pbmm2:
+  mem: 80
+  threads: 20
+
+bam_sort:
+  mem: 80
+  threads: 20
 
 pbsv_discover:
   mem: 20

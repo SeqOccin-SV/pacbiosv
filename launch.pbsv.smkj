@@ -1,14 +1,18 @@
 #!/bin/bash
 
+# TODO
+# Add options for dry-run, local or cluster launch
+# Update cluster-config to profile
+
+
+
 if [ $# -ne 0 ]
 then
 	echo 'USAGE: launch.pbsv.smkj'
 	exit 1
 fi
 
-#~ conda env create -p ./pbsv -f environment.yaml
-#~ conda activate ./pbsv/
 
-snakemake -j 4 --cluster "sbatch -c {threads} -p workq --mem={resources.mem_gb}G" --cluster-config cluster.yaml \
+snakemake -j 6 --cluster-config cluster.yaml --cluster "sbatch -c {cluster.threads} -p {cluster.partition} --mem={cluster.mem}G" \
 	--configfile config.yaml \
-	--use-conda --skip-script-cleanup
+	--use-conda -p
