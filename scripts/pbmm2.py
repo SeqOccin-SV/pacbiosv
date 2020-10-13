@@ -25,7 +25,9 @@ def get_type(fofn):
 ###################################################################
 
 # command = ' '.join(['pbmm2 align', snakemake.config['ref'], snakemake.input.file, snakemake.output.bam, '--sort -j',str(snakemake.threads)])
-command = ' '.join(['pbmm2 align', snakemake.config['ref'], snakemake.input.file, snakemake.output.bam, '-j',str(snakemake.threads)])
+# command = ' '.join(['pbmm2 align', snakemake.config['ref'], snakemake.input.file, snakemake.output.bam, '-j',str(snakemake.threads)])
+command = ' '.join(['pbmm2 align', snakemake.config['ref'], snakemake.input.file, snakemake.output.bam, 
+	'--sort -j', str(snakemake.threads), '-J', str(snakemake.threads)])
 
 if (get_type(snakemake.input.file)==2): # only if CCS
 	command += ' --preset CCS'
@@ -42,6 +44,9 @@ print(command)
 os.environ['TMPDIR'] = "./" # UNIX
 os.environ['TMP'] = "./" # WINDOWS
 
+print('Updating ulimit')
+os.system('ulimit -n 4096')
+print('Running pbmm2')
 os.system(command)
 
 

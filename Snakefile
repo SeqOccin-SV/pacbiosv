@@ -6,7 +6,7 @@ import pathlib
 from pprint import pprint
 
 # VAR
-samples = pd.read_table(config['samples']).set_index('sample', drop=False)
+samples = pd.read_table(config['samples'], comment='#').set_index('sample', drop=False)
 # ~ seqtypes = ['subreads','bamccs','fastqccs']
 
 ###############################################################
@@ -140,29 +140,29 @@ rule pbmm2:
 	script:
 		'scripts/pbmm2.py'
 
-rule bam_sort:
-	''' Rule to sort bam file from pbmm2
-	This is done in a separate rule instead of using pbmm2 --sort
-	for memory usage optimisation
-	'''
+# rule bam_sort:
+# 	''' Rule to sort bam file from pbmm2
+# 	This is done in a separate rule instead of using pbmm2 --sort
+# 	for memory usage optimisation
+# 	'''
+# 	input:
+# 		"mapping/{sample}-pbmm2.bam"
+# 	output:
+# 		"mapping/{sample}-sorted-pbmm2.bam"
+# 	log:
+# 		"logs/samtools/{sample}-sort.log"
+# 	conda:
+# 		'envs/pbsv_env.yaml'
+# 	threads: get_threads('bam_sort',10)
+# 	shell:
+# 		"export TMPDIR=./ ;"
+# 		"samtools sort -@ {threads} -o {output} {input} 2> {log}"
+ 
+rule bam_index:
 	input:
 		"mapping/{sample}-pbmm2.bam"
 	output:
-		"mapping/{sample}-sorted-pbmm2.bam"
-	log:
-		"logs/samtools/{sample}-sort.log"
-	conda:
-		'envs/pbsv_env.yaml'
-	threads: get_threads('bam_sort',10)
-	shell:
-		"export TMPDIR=./ ;"
-		"samtools sort -@ {threads} -o {output} {input} 2> {log}"
-
-rule bam_index:
-	input:
-		"mapping/{sample}-sorted-pbmm2.bam"
-	output:
-		"mapping/{sample}-sorted-pbmm2.bam.bai"
+		"mapping/{sample}-pbmm2.bam.bai"
 	log:
 		"logs/samtools/{sample}-index.log"
 	conda:
@@ -175,8 +175,8 @@ rule pbsv_discover:
 	''' first rule for sv detection, use bam to look for regions with possible variants
 	'''
 	input:
-		bam="mapping/{sample}-sorted-pbmm2.bam",
-		bai="mapping/{sample}-sorted-pbmm2.bam.bai"
+		bam="mapping/{sample}-pbmm2.bam",
+		bai="mapping/{sample}-pbmm2.bam.bai"
 	output:
 		"calling/{sample}-pbmm2.svsig.gz"
 	log:
