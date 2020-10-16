@@ -125,8 +125,7 @@ rule pbmm2:
 	input:
 		file=write_fofn
 	output:
-		# ~ bam=temp("mapping/{sample}-pbmm2.bam")
-		bam=temp("mapping/{sample}-pbmm2.bam")
+		bam="mapping/{sample}-pbmm2.bam"
 	log:
 		stdout="logs/pbmm2/{sample}.out",
 		stderr="logs/pbmm2/{sample}.log"
@@ -136,7 +135,7 @@ rule pbmm2:
 		rg = '@RG\\tID:movie{sample}\\tSM:{sample}',
 	conda:
 		'envs/pbsv_env.yaml'
-	threads: get_threads('pbmm2',10)
+	threads: get_threads('pbmm2',20)
 	script:
 		'scripts/pbmm2.py'
 

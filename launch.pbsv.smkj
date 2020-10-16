@@ -14,6 +14,6 @@ fi
 
 
 snakemake -j 6 --cluster-config cluster.yaml \
-	--cluster "sbatch -c {cluster.threads} -p {cluster.partition} --mem={cluster.mem}Gi -J {cluster.name}" \
+	--cluster "sbatch -c {cluster.threads} -p {cluster.partition} --mem={cluster.mem}G -J {cluster.name}" \
 	--configfile config.yaml \
 	--use-conda -p
