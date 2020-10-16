@@ -13,16 +13,17 @@ samples = pd.read_table(config['samples'], comment='#').set_index('sample', drop
 ### Methods
 ###############################################################
 
-def get_type(wildcards):
+def get_type(input):
 	print('Inside get_type\n')
-	pprint(wildcards)
+	pprint(input)
 	type = 0
-	if (wildcards.input.file.endswith('subreads.fofn') ):
+	if (input.file.endswith('subreads.fofn') ):
 		type = 1
-	elif (wildcards.input.file.endswith('bamccs.fofn') ):
+	elif (input.file.endswith('bamccs.fofn') ):
 		type = 2
-	elif (wildcards.input.file.endswith('fastqccs.fofn') ):
+	elif (input.file.endswith('fastqccs.fofn') ):
 		type = 3
+	pprint(type)
 	return type
 
 def get_preset(wildcards):
@@ -131,13 +132,26 @@ rule pbmm2:
 		stderr="logs/pbmm2/{sample}.log"
 	benchmark:
 		"bench/{sample}.pbmm2.benchmark.txt"
+	resources:
+		type = lambda wildcards, input: get_type(input)
 	params:
-		rg = '@RG\\tID:movie{sample}\\tSM:{sample}',
+#		rg = "@RG\\tID:movie{sample}\\tSM:{sample}",
+#		type = lambda wildcards, resources: resources.type,
+		is_ccs = lambda wildcards, resources: '--preset CCS' if resources.type==2 or resources.type==3 else '',
+		need_rg = lambda wildcards,resources: '--sample '+wildcards.sample+' --rg @RG\\tID:movie'+wildcards.sample+'\\tSM:'+wildcards.sample if resources.type==3 else ''
+
 	conda:
 		'envs/pbsv_env.yaml'
 	threads: get_threads('pbmm2',20)
-	script:
-		'scripts/pbmm2.py'
+	shell:
+		"export TMPDIR=./; "
+		"ulimit -n 4096; "
+		"pbmm2 align {config[ref]} {input.file} {output.bam} --sort -j {threads} -J {threads} "
+		"{params.is_ccs} "
+		"{params.need_rg}"
+#		'''
+# 	script:
+# 		'scripts/pbmm2.py'
 
 # rule bam_sort:
 # 	''' Rule to sort bam file from pbmm2
@@ -194,6 +208,10 @@ rule pbsv_call:
 		"calling/{sample}-pbmm2.svsig.gz"
 	output:
 		"calling/{sample}-pbmm2.vcf"
+	resources:
+		#type = rules.pbmm2.params.type
+	params:
+		#is_ccs = lambda wildcards, resources: '--ccs' if resources.type==2 or resources.type==3 else '',
 	log:
 		"logs/pbsv/{sample}_call.log"
 	benchmark:
@@ -204,4 +222,5 @@ rule pbsv_call:
 	shell:
 		"pbsv call -j {threads} "+config['ref']+" {input} {output}"
                 # specific parameter for CCS, easier to consider a SV" --ccs"
+		# will not implemented it for now as it is usefull mainly for low cov
 		" 2> {log}"
