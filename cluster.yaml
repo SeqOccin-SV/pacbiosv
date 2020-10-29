@@ -11,13 +11,9 @@ pbmm2:
   mem: 80
   threads: 20
 
-bam_sort:
-  mem: 80
-  threads: 20
-
 pbsv_discover:
-  mem: 20
-  threads: 4
+  mem: 40
+  threads: 8
 
 pbsv_call:
   mem: 50

@@ -196,9 +196,9 @@ rule pbsv_discover:
 		"logs/pbsv/{sample}_discover.log"
 	conda:
 		'envs/pbsv_env.yaml'
-	threads: get_threads('pbsv_discover',4)
+	threads: get_threads('pbsv_discover',10)
 	shell:
-		"pbsv discover {input.bam} {output}"
+		"pbsv discover -s {sample} {input.bam} {output}"
 		" 2> {log}"
 
 rule pbsv_call:
