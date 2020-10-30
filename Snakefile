@@ -26,12 +26,6 @@ def get_type(input):
 	pprint(type)
 	return type
 
-def get_preset(wildcards):
-	return '--preset CCS' if (get_type(wildcards) == 2 or get_type(wildcards) == 3) else ''
-
-def get_info(wildcards):
-	return '--sample {sample} --rg {params.rg}' if (get_type(wildcards) == 3) else ''
-
 def get_files(wildcards):
 	''' Parse the samples.txt from config file
 	'''
@@ -86,6 +80,25 @@ def write_fofn(wildcards):
 			
 	return(fofnName)
 
+def get_fofn_types(fofn_file):
+	
+	pprint('Inside get_fofn_types')
+	type = 0
+	with open(str(fofn_file), 'r') as fh:
+		first_file = fh.readline().rstrip('\n')
+		pprint('first_file : '+first_file)
+		suffix = get_suffix(first_file)
+		if (suffix.endswith('subreads.bam')):
+			type = 1
+		elif (suffix.endswith('ccs.bam')):
+			type = 2
+		elif (suffix.endswith('fastq.gz') or suffix.endswith('fq.gz') or suffix.endswith('fastq') or suffix.endswith('fq')):
+			type = 3
+	
+	pprint('Type value: '+str(type))
+	return(type)
+	
+
 ###############################################################
 ### Wildcards
 ###############################################################
@@ -106,25 +119,39 @@ rule all:
 # Could add a rule to produce an index for reference 
 # Test if it improves computation time
 
-# ~ rule write_fofn:
-	# ~ ''' rule to produce a fofn file for pbmm2
-	# ~ '''
-	# ~ input:
-		# ~ write_fofn
-	# ~ output:
-		# ~ fofn="fofn/{sample}.fofn"
-	# ~ log:
-		# ~ stdout="logs/fofn/{sample}.out",
-		# ~ stderr="logs/fofn/{sample}.log"
-	# ~ shell:
-		# ~ ' '
+rule write_fofn:
+	''' rule to produce a fofn file for pbmm2
+	'''
+	input:
+		config['samples']
+	output:
+		fofn="fofn/{sample}.fofn"
+	log:
+		stdout="logs/fofn/{sample}.out",
+		stderr="logs/fofn/{sample}.log"
+	run:	
+		files = get_files(wildcards)
+		fofnName = ''
+		suffixes = map(get_suffix, files)
+		suffixSet = list(set(suffixes))
+		
+		pathlib.Path("fofn").mkdir(parents=True, exist_ok=True)
+		
+		if (len(suffixSet) > 1):
+			raise Exception('''You got several datatypes for sample {}. 
+		You have to analyze CLR and HiFi data separatedly.'''.format(wildcards.sample))
+		else:
+			fofnName = 'fofn/'+wildcards.sample+'.fofn'
+			with open(fofnName, 'w') as fh:
+				for f in files:
+					fh.write(f+"\n")
 
 rule pbmm2:
 	''' rule to align reads with minimap2 wrapper from fastq file
 	generally, fastq file input is used for HiFi reads coming out of CCS
 	'''
 	input:
-		file=write_fofn
+		file="fofn/{sample}.fofn"
 	output:
 		bam="mapping/{sample}-pbmm2.bam"
 	log:
@@ -133,7 +160,7 @@ rule pbmm2:
 	benchmark:
 		"bench/{sample}.pbmm2.benchmark.txt"
 	resources:
-		type = lambda wildcards, input: get_type(input)
+		type = lambda wildcards, input: get_fofn_types(input)
 	params:
 #		rg = "@RG\\tID:movie{sample}\\tSM:{sample}",
 #		type = lambda wildcards, resources: resources.type,
@@ -198,7 +225,7 @@ rule pbsv_discover:
 		'envs/pbsv_env.yaml'
 	threads: get_threads('pbsv_discover',10)
 	shell:
-		"pbsv discover -s {sample} {input.bam} {output}"
+		"pbsv discover -s {wildcards.sample} {input.bam} {output}"
 		" 2> {log}"
 
 rule pbsv_call:
