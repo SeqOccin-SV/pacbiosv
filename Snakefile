@@ -32,6 +32,20 @@ def get_files(wildcards):
 	files = samples.loc[wildcards.sample, 'path'].split(',')
 	return(files)
 
+def get_bam(wildcards):
+	''' Shortcut to use bam directly
+	'''
+	if 'bam_path' in samples.columns:
+		return samples.loc[wildcards.sample, "bam_path"]
+	return "mapping/%s-pbmm2.bam" % wildcards.sample
+
+def get_bai(wildcards):
+	''' Shortcut to use bam directly
+	'''
+	if 'bam_path' in samples.columns:
+		return samples.loc[wildcards.sample, "bam_path"]+'.bai'
+	return "mapping/%s-pbmm2.bam.bai" % wildcards.sample
+
 def get_suffix(string):
 	''' Return path file suffixes
 	'''
@@ -215,8 +229,8 @@ rule pbsv_discover:
 	''' first rule for sv detection, use bam to look for regions with possible variants
 	'''
 	input:
-		bam="mapping/{sample}-pbmm2.bam",
-		bai="mapping/{sample}-pbmm2.bam.bai"
+		bam = get_bam,
+		bai = get_bai
 	output:
 		"calling/{sample}-pbmm2.svsig.gz"
 	log:
