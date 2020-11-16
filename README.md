@@ -16,6 +16,23 @@ conda activate ./pbsv/
 
 ### Snakemake
 
+First, modify samples.tsv/bamSamples.tsv and config.yaml
+
+Example samples.tsv
+|sample|path|
+|-------|----|
+|name_CLR|1.subreads.bam,2.subreads.bam|
+|name_HiFi1|1.ccs.bam,1.ccs.bam|
+|name_HiFi2|1.fq.gz,2.fq.gz|
+
+Example bamSamples.tsv
+
+|sample|bam_path|
+|-------|----|
+|name|path/mapped.bam|
+
+then use the launch script
+
 ```bash
 sbatch -j 4 ./launch.pbsv.smkj
 ```
