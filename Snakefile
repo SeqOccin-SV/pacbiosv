@@ -225,12 +225,26 @@ rule bam_index:
 	shell:
 		"samtools index -@ {threads} {input} 2> {log}"
 
+rule bam_stats:
+	input:
+		get_bam
+	output:
+		"mapping/{sample}-pbmm2.bam.stats"
+	log:
+		"logs/samtools/{sample}-stats.log"
+	conda:
+		'envs/pbsv_env.yaml'
+	threads: get_threads('bam_stats',4)
+	shell:
+		"samtools stats -@ {threads} {input} > {output} 2> {log}"
+
 rule pbsv_discover:
 	''' first rule for sv detection, use bam to look for regions with possible variants
 	'''
 	input:
 		bam = get_bam,
-		bai = get_bai
+		bai = get_bai,
+		stats = "mapping/{sample}-pbmm2.bam.stats"
 	output:
 		"calling/{sample}-pbmm2.svsig.gz"
 	log:
