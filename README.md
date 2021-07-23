@@ -1,22 +1,21 @@
 # PacBio SV detection pipeline
 
-## Running PacBio SV detection pipeline on your dataset
+## Prerequisite to run PacBio SV detection pipeline on your dataset
 
-To run this snakemake pipeline, you need to have access to an installation of python3 with snakemake 5 module installed.
-
-#### Setting python env to have access to PacBio helper script
+To run this snakemake pipeline, you need to have access to a conda environment with snakemake >= 5 installed.
+On Genotoul, you can simply load the following module
 
 ```bash
-# check for module load on genotoul
-conda env create -p ./pbsv -f envs/pbsv_env.yaml
-conda activate ./pbsv/
+module load bioinfo/snakemake-5.25.0
 ```
 
 ## Running the pipeline
 
 ### Snakemake
 
-First, modify samples.tsv/bamSamples.tsv and config.yaml
+First, modify the ```config.yaml``` then either the example ```samples.tsv``` or ```bamSamples.tsv```
+
+You can write your own tsv file from scratch if you respect the following content
 
 Example samples.tsv
 |sample|path|
@@ -37,12 +36,21 @@ then use the launch script
 sbatch -j 4 ./launch.pbsv.smkj
 ```
 
-##### Summary of the bash commands executed by the pipeline
+##### Summary of the commands executed by the pipeline
+
+###### Setting python env to have access to PacBio helper script
+
+```bash
+conda env create -p ./pbsv -f envs/pbsv_env.yaml
+conda activate ./pbsv/
+```
+
 
 ###### Using pbmm2 to run minimap2 with preset for CCS
 ```bash
 pbmm2 align {ref} {reads} {output.bam} --sort [--preset CCS [--sample {sample} --rg '@RG\tID:movie{sample}']]
 samtools index {output.bam}
+samtools stats {output.bam}
 ```
 
 ###### Running Pacbio Detection
